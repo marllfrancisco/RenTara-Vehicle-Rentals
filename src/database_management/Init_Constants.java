@@ -10,7 +10,7 @@ public class Init_Constants {
                 password TEXT NOT NULL,
                 role TEXT NOT NULL,
                 full_name TEXT NOT NULL,
-                is_kyc_approved INTEGER NOT NULL DEFAULT 0)
+                is_kyc_approved BOOLEAN NOT NULL DEFAULT FALSE)
             """;
 
     public static final String CREATE_VEHICLES_TABLE = """
@@ -20,7 +20,7 @@ public class Init_Constants {
                 vehicle_type TEXT NOT NULL,
                 brand_model TEXT NOT NULL,
                 daily_rate DECIMAL NOT NULL,
-                is_available INTEGER NOT NULL DEFAULT 1,
+                is_available BOOLEAN NOT NULL DEFAULT TRUE,
                 FOREIGN KEY (owner_id) REFERENCES users(user_id))
             """;
 
@@ -31,7 +31,7 @@ public class Init_Constants {
                 vehicle_id INTEGER NOT NULL,
                 days_rented INTEGER NOT NULL,
                 total_fee DECIMAL NOT NULL,
-                status STRING NOT NULL,
+                status TEXT NOT NULL,
                 FOREIGN KEY (guest_id) REFERENCES users(user_id),
                 FOREIGN KEY (vehicle_id) REFERENCES vehicles(vehicle_id))
             """;
