@@ -6,6 +6,6 @@ public class Main {
     public static void main(String[] args) {
         System.out.println("a");
 
-        Database db = new Database("rentaran.db");
+        Database db = new Database("RenTara.db");
     }
 }
