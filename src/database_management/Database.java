@@ -1,4 +1,4 @@
-package src.database_management;
+package database_management;
 import java.sql.*;
 
 public class Database {
@@ -10,6 +10,7 @@ public class Database {
         url = "jdbc:sqlite:data/" + filename;
         try_connect();
         init_tables();
+        init_admin();
     }
 
     public void try_connect() {
@@ -29,6 +30,18 @@ public class Database {
             statement.execute(Init_Constants.CREATE_USERS_TABLE);
             statement.execute(Init_Constants.CREATE_VEHICLES_TABLE);
             statement.execute(Init_Constants.CREATE_BOOKINGS_TABLE);
+        }
+        catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void init_admin() {
+        try {
+            Statement statement = conn.createStatement();
+            ResultSet rs = statement.executeQuery("SELECT * FROM users");
+            if (rs.next()) { System.out.println("Skipping Account Creation..."); }
+            else statement.executeUpdate(Init_Constants.CREATE_ADMIN); 
         }
         catch (SQLException e) {
             e.printStackTrace();
