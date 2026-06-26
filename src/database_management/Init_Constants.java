@@ -1,4 +1,4 @@
-package src.database_management;
+package database_management;
 
 public class Init_Constants {
     private Init_Constants(){}
@@ -34,5 +34,10 @@ public class Init_Constants {
                 status TEXT NOT NULL,
                 FOREIGN KEY (guest_id) REFERENCES users(user_id),
                 FOREIGN KEY (vehicle_id) REFERENCES vehicles(vehicle_id))
+            """;
+
+    public static final String CREATE_ADMIN = """
+            INSERT INTO users (username, password, role, full_name, is_kyc_approved)
+            VALUES ('admin', 'admin', 'Admin', 'admin user', TRUE)
             """;
 }
