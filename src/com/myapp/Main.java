@@ -7,6 +7,5 @@ public class Main {
         System.out.println("a");
 
         Database db = new Database("rentaran.db");
-        db.try_connect();
     }
 }
