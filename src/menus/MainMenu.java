@@ -1,5 +1,7 @@
 package menus;
 
+import java.util.Scanner;
+
 import database_management.Database;
 
 public class MainMenu {
@@ -9,11 +11,27 @@ public class MainMenu {
         this.db = db;
     }
 
-    public void start(){
+    public void admin_start(){
+        Scanner scan = new Scanner(System.in);
 
-        // Implement while loop until user presses designated exit button
-        // Prompts user to select between menu selections
+        while(true) {
+            System.out.print("\033[H\033[2J");
 
-        System.out.println("Test");
+            switch (scan.nextLine()) {
+                case "1":
+                    
+                    break;
+                case "5":
+                    scan.close();
+                    return;
+                default:
+                    break;
+            }
+
+        }
+    }
+
+    public void customer_start() {
+
     }
 }
