@@ -80,4 +80,8 @@ public class AdminMenu {
         }
     }
 
+    public void viewRevenueReport() {
+        
+    }
+
 }
