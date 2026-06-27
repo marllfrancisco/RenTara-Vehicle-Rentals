@@ -20,7 +20,9 @@ public class MenuStrings {
     public static final String CUSTOMER_STRING = """
             === CUSTOMER MAIN MENU ===
             1. Rent a Vehicle
-            2. List my Vehicle for Rent
-            3. Exit
+            2. Return a rent
+            3. List my Vehicle for Rent
+            4. Unlist my Vehicle
+            5. Exit
             Entry: """;
 }
