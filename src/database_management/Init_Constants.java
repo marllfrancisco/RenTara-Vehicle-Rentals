@@ -6,7 +6,7 @@ public class Init_Constants {
     public static final String CREATE_USERS_TABLE = """
             CREATE TABLE IF NOT EXISTS users (
                 user_id INTEGER PRIMARY KEY AUTOINCREMENT,
-                username TEXT NOT NULL,
+                username TEXT NOT NULL UNIQUE,
                 password TEXT NOT NULL,
                 role TEXT NOT NULL,
                 full_name TEXT NOT NULL,
