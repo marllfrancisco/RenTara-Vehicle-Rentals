@@ -3,17 +3,18 @@ import java.sql.*;
 
 public class Database {
     
-    String url;
-    Connection conn;
+    private String url;
+    private Connection conn;
     
     public Database(String filename) {
         url = "jdbc:sqlite:data/" + filename;
-        try_connect();
-        init_tables();
-        init_admin();
+        setConnection();
+        initializeTables();
+        initializeAdmin();
     }
 
-    public void try_connect() {
+    public Connection getConnection() { return conn; }
+    public void setConnection() {
         try {
             conn = DriverManager.getConnection(url);
             System.out.println("Successfully Connected to Database");
@@ -23,7 +24,7 @@ public class Database {
         }
     }
 
-    public void init_tables() {
+    public void initializeTables() {
 
         try {
             Statement statement = conn.createStatement();
@@ -36,7 +37,7 @@ public class Database {
         }
     }
 
-    public void init_admin() {
+    public void initializeAdmin() {
         try {
             Statement statement = conn.createStatement();
             ResultSet rs = statement.executeQuery("SELECT * FROM users");
@@ -47,4 +48,6 @@ public class Database {
             e.printStackTrace();
         }
     }
+
+
 }
