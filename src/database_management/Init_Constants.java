@@ -38,6 +38,12 @@ public class Init_Constants {
 
     public static final String CREATE_ADMIN = """
             INSERT INTO users (username, password, role, full_name, is_kyc_approved)
-            VALUES ('admin', 'admin', 'Admin', 'admin user', TRUE)
+            VALUES ('admin', 'admin123', 'Admin', 'admin user', TRUE)
             """;
+
+    /*
+	public static final String UPDATE_ADMIN = """
+			UPDATE users SET password = 'admin123' WHERE username = 'admin';
+			"""; */
+
 }

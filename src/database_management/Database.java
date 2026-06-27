@@ -63,6 +63,7 @@ public class Database {
             statement.execute(Init_Constants.CREATE_USERS_TABLE);
             statement.execute(Init_Constants.CREATE_VEHICLES_TABLE);
             statement.execute(Init_Constants.CREATE_BOOKINGS_TABLE);
+            // statement.execute(Init_Constants.UPDATE_ADMIN);
         }
         catch (SQLException e) {
             e.printStackTrace();

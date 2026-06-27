@@ -33,12 +33,24 @@ public class AdminMenu {
             List<User> users = urepo.findAll();
 
             System.out.print("\033[H\033[2J");
-            System.out.println("User List");
-            System.out.println("User List\nID         NAME                 APPROVED");
-
+            
+            // %-5s  = String, left-aligned (-), 5 characters wide
+            // %-20s = String, left-aligned (-), 20 characters wide
+            // %-10s = String, left-aligned (-), 10 characters wide
+            // %n    = Platform-independent newline (like \n)
+            String rowTemplate = "%-5s %-20s %-10s%n";
+            
+            System.out.println("\n\t\t===== User List =====");
+            System.out.printf(rowTemplate, "ID", "NAME", "APPROVED");
+            System.out.println("----------------------------------------");
+            
+            
             for (int i = 0; i < users.size(); i++) {
                 if (!users.get(i).isAdmin()) {
-                    System.out.println(formatAString(users.get(i).getId(), users.get(i).getFullName(), users.get(i).isKycApproved()));
+                    System.out.printf(rowTemplate,
+                    		users.get(i).getId(), 
+                    		users.get(i).getFullName(), 
+                    		users.get(i).isKycApproved());
                 }
             }
 
@@ -69,12 +81,21 @@ public class AdminMenu {
             List<User> users = urepo.findAll();
 
             System.out.print("\033[H\033[2J");
-            System.out.println("User List\nID         NAME                 APPROVED");
+            
+            String rowTemplate = "%-5s %-15s %-10s%n";
+            
+            System.out.println("\n\t    ===== User List =====");
+            System.out.printf(rowTemplate, "ID", "NAME", "APPROVED");
+            System.out.println("----------------------------------------");
+            
             for (int i = 0; i < users.size(); i++) {
-                System.out.println(formatAString(users.get(i).getId(), users.get(i).getFullName(), users.get(i).isKycApproved()));
+                System.out.printf(rowTemplate,
+                		users.get(i).getId(), 
+                		users.get(i).getFullName(), 
+                		users.get(i).isKycApproved());
             }
 
-            System.out.print("Press ENTER to continue");
+            System.out.println("\nPress ENTER to continue");
             scan.nextLine();
         }
         catch (SQLException e) {
