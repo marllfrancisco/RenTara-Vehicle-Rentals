@@ -7,21 +7,53 @@ public class Database {
     private Connection conn;
     
     public Database(String filename) {
-        url = "jdbc:sqlite:data/" + filename;
-        setConnection();
+    	try {
+            // Establish the connection
+            String url = "jdbc:sqlite:" + filename;
+            this.conn = DriverManager.getConnection(url);
+            
+            // Apply the PRAGMA fixes to prevent [SQLITE_BUSY]
+            try (Statement stmt = conn.createStatement()) {
+                stmt.execute("PRAGMA journal_mode = WAL;");
+                stmt.execute("PRAGMA busy_timeout = 5000;");
+            }
+            
+            System.out.println("Successfully Connected to Database");
+        } catch (SQLException e) {
+            System.err.println("Database connection failed: " + e.getMessage());
+            e.printStackTrace();
+        }
+    	
         initializeTables();
         initializeAdmin();
     }
 
-    public Connection getConnection() { return conn; }
-    public void setConnection() {
+    public Connection getConnection() { return this.conn; }
+    public void setConnection () {
         try {
             conn = DriverManager.getConnection(url);
             System.out.println("Successfully Connected to Database");
+            
+            // Enable Write-Ahead Logging (WAL)
+            // This allows multiple readers and one writer to work simultaneously 
+            // without locking the file.
+            try (Statement stmt = conn.createStatement()) {
+                stmt.execute("PRAGMA journal_mode = WAL;");
+            }
+
+            // Set Busy Timeout
+            // If the database is locked, SQLite will wait 5 seconds
+            // for it to unlock before giving up.
+            try (Statement stmt = conn.createStatement()) {
+                stmt.execute("PRAGMA busy_timeout = 5000;");
+            }
         }
         catch (SQLException e) {
             e.printStackTrace();
         }
+        
+ 
+        
     }
 
     public void initializeTables() {

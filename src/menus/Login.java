@@ -1,3 +1,15 @@
+
+/* CHANGES NEED TO IMPLEMENT:
+ * 1. Username check
+ * 		In both REGISTER and LOGIN, after entering username, DB should look for that 
+ * 		username, if it exist, reject, make the user try another username
+ * 
+ * 2. Password should be in asterisk, well if this is only possible
+ * 
+ */
+
+
+
 package menus;
 
 import database_management.Database;
@@ -20,7 +32,7 @@ public class Login {
     }
 
     private String ask_info(String question) {
-        System.out.print("Enter " + question + ":");
+        System.out.print("\nEnter " + question + ": ");
         return scan.nextLine();
     }
 
@@ -31,9 +43,9 @@ public class Login {
 
             try {
 
-                System.out.print("Username: ");
+                System.out.print("\nCreate Username: ");
                 String username = scan.nextLine();
-                System.out.print("Password: ");
+                System.out.print("Create Password: ");
                 String password = scan.nextLine();
                 System.out.print("Full name: ");
                 String fullName = scan.nextLine();
@@ -58,8 +70,8 @@ public class Login {
 
             System.out.print("\033[H\033[2J");
 
-            String username = ask_info("username");
-            String password = ask_info("password");
+            String username = ask_info("Username");
+            String password = ask_info("Password");
 
             try {
                 Optional<User> user = urep.findByUserAndPass(username, password);
@@ -74,23 +86,34 @@ public class Login {
         return Optional.empty();
     }
 
-    public Optional<User> start(){
+    public Optional<User> start() {
+        while (true) { // keeps menu alive
+            // menu always starts fresh
+            System.out.print("\033[H\033[2J"); 
+            System.out.flush(); // Ensure it clears immediately
 
-        System.out.print(MenuStrings.LOGIN_STRING);
-        String selected = scan.nextLine();
-        
-        switch (selected) {
-            case "1":
-                return login();
-            case "2":
-                register();
-                return Optional.empty();
-            case "3":
-                return Optional.empty();
-            default:
-                return Optional.empty();
+            // Print the menu
+            System.out.print(MenuStrings.LOGIN_STRING);
+            String selected = scan.nextLine().trim(); // avoid accidental space errors
+
+            // Handle the logic
+            switch (selected) {
+                case "1":
+                    return login(); // Only exits the loop if login returns a user
+                case "2":
+                    register();
+                    // After registering, we don't return, so it loops back to the menu
+                    break; 
+                case "3":
+                    System.out.println("Exiting system...");
+                    return Optional.empty();
+                default:
+                    // Handle invalid input
+                    System.out.println("\n[Error] Invalid option: '" + selected+ "'");
+                    System.out.println("Press Enter to continue...");
+                    scan.nextLine(); // Pause so they can read the error
+                    break; // restarts the loop
+            }
         }
-
-
     }
 }
