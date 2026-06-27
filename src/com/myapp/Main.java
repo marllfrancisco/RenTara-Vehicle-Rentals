@@ -12,19 +12,14 @@ public class Main {
 
         Login login = new Login(db);
         MainMenu main_menu = new MainMenu(db);
-        Optional<User> result = login.start();
-        User user;
+        User user = new User();
 
+        Optional<User> result = login.start();
         if (result.isPresent()) { user = result.get(); }
         else return;
 
-        if (user.getRole().equals("Admin")) {
-            main_menu.admin_start();
-        }
-        else if (user.getRole().equals("Customer")) {
-            main_menu.customer_start();
-        } 
-
+        if (user.isAdmin()) { main_menu.admin_start(); }
+        else { main_menu.customer_start(); } 
 
         System.out.print("\033[H\033[2J");
     }
