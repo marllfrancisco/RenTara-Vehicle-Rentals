@@ -186,7 +186,7 @@ public class CustomerMenu {
             }
 
             System.out.println("---------------------------------------------");
-            System.out.print("Enter the Vehicle ID you want to unlist/delete: ");
+            System.out.print("Enter the Vehicle ID to unlist/delete: ");
             int vehicleId = scan.nextInt();
             scan.nextLine(); // Clear scanner buffer
 
