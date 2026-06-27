@@ -5,8 +5,7 @@ public class MenuStrings {
     
     public static final String MENU_STRING = """
             === ADMIN MAIN MENU ===
-            1. Create
-
-            Entry: 
-            """;
+            1. User Menu
+            2. Car Menu
+            Entry: """;
 }
