@@ -1,11 +1,13 @@
 package menus;
 
 import database_management.Database;
+import models.User;
+import models.UserRepository;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
+import java.util.Optional;
 import java.util.Scanner;
 
 public class Login {
@@ -22,7 +24,7 @@ public class Login {
         return scan.nextLine();
     }
 
-    public String compare_input(String user, String pass) throws SQLException {
+    public ResultSet compare_input(String user, String pass) throws SQLException {
 
         try {
             PreparedStatement statement = db.getConnection().prepareStatement("SELECT * FROM users WHERE username = ? AND password = ?");
@@ -34,7 +36,7 @@ public class Login {
                 throw new SQLException();
             }
             else {
-                return rs.getString(3);
+                return rs;
             }
         }
         catch (SQLException e) {
@@ -42,21 +44,21 @@ public class Login {
         }
     }
 
-    public String start(){
+    public Optional<User> start(){
 
-
+        UserRepository urep = new UserRepository(db.getConnection());
         int attempts = 3;
 
         while (attempts != 0) {
 
             System.out.print("\033[H\033[2J");
 
-            String user = ask_info("username");
-            String pass = ask_info("password");
+            String username = ask_info("username");
+            String password = ask_info("password");
 
             try {
-                String value = compare_input(user, pass);
-                if (value != null) return value;
+                Optional<User> user = urep.findByUserAndPass(username, password);
+                return user;
             }
             catch (SQLException e) {
                 e.printStackTrace();
@@ -64,6 +66,6 @@ public class Login {
             }
         }   
         scan.close();
-        return "None";
+        return Optional.empty();
     }
 }
