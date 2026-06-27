@@ -106,10 +106,6 @@ public class CustomerMenu {
             scan.nextLine();
         }
     }
-
-    public void returnRent() {
-
-    }
  
     public void addVehicle() {
         System.out.print("\033[H\033[2J");
@@ -147,8 +143,160 @@ public class CustomerMenu {
         }
     }
 
-    public void unlistVehicle() {
+    public void returnRent() {
+        Connection conn = db.getConnection();
+        // Select active bookings belonging to the current user
+        String selectSql = """
+            SELECT b.booking_id, v.brand_model, b.total_fee, v.vehicle_id 
+            FROM bookings b 
+            JOIN vehicles v ON b.vehicle_id = v.vehicle_id 
+            WHERE b.guest_id = ? AND b.status = 'Approved'
+        """;
 
+        try {
+            System.out.print("\033[H\033[2J");
+            System.out.println("\n=============================================");
+            System.out.println("             YOUR ACTIVE RENTALS             ");
+            System.out.println("=============================================");
+
+            boolean hasRentals = false;
+            try (PreparedStatement ps = conn.prepareStatement(selectSql)) {
+                ps.setInt(1, currentUser.getUserId());
+                try (ResultSet rs = ps.executeQuery()) {
+                    while (rs.next()) {
+                        hasRentals = true;
+                        System.out.printf("%d - %s - PHP %.2f\n",
+                                rs.getInt("booking_id"),
+                                rs.getString("brand_model"),
+                                rs.getDouble("total_fee"));
+                    }
+                }
+            }
+
+            if (!hasRentals) {
+                System.out.println("You have no active approved rentals to return.");
+                System.out.println("\nPress ENTER to return...");
+                scan.nextLine();
+                return;
+            }
+
+            System.out.println("---------------------------------------------");
+            System.out.print("Enter the Booking ID of the vehicle you want to return: ");
+            int bookingId = scan.nextInt();
+            scan.nextLine(); // Clear scanner buffer
+
+            // Verify booking exists, belongs to user, and fetch vehicle_id
+            String verifySql = "SELECT vehicle_id FROM bookings WHERE booking_id = ? AND guest_id = ? AND status = 'Approved'";
+            int vehicleId = -1;
+            try (PreparedStatement ps = conn.prepareStatement(verifySql)) {
+                ps.setInt(1, bookingId);
+                ps.setInt(2, currentUser.getUserId());
+                try (ResultSet rs = ps.executeQuery()) {
+                    if (rs.next()) {
+                        vehicleId = rs.getInt("vehicle_id");
+                    } else {
+                        System.out.println("\n[Error] Invalid Booking ID or rental is not active.");
+                        System.out.println("Press ENTER to continue...");
+                        scan.nextLine();
+                        return;
+                    }
+                }
+            }
+
+            // Update booking status to Completed
+            String updateBookingSql = "UPDATE bookings SET status = 'Completed' WHERE booking_id = ?";
+            try (PreparedStatement ps = conn.prepareStatement(updateBookingSql)) {
+                ps.setInt(1, bookingId);
+                ps.executeUpdate();
+            }
+
+            // Mark the vehicle as available again
+            String updateVehicleSql = "UPDATE vehicles SET is_available = 1 WHERE vehicle_id = ?";
+            try (PreparedStatement ps = conn.prepareStatement(updateVehicleSql)) {
+                ps.setInt(1, vehicleId);
+                ps.executeUpdate();
+            }
+
+            System.out.println("\n[Success] Vehicle returned successfully! Waiting for data synchronization.");
+            System.out.println("Press ENTER to continue...");
+            scan.nextLine();
+
+        } catch (SQLException e) {
+            System.out.println("\n[Error] Database operation failed during vehicle return.");
+            e.printStackTrace();
+            scan.nextLine();
+        }
+    }
+
+    public void unlistVehicle() {
+        Connection conn = db.getConnection();
+        String selectSql = "SELECT * FROM vehicles WHERE owner_id = ?";
+
+        try {
+            System.out.print("\033[H\033[2J");
+            System.out.println("\n=============================================");
+            System.out.println("              YOUR LISTED VEHICLES           ");
+            System.out.println("=============================================");
+
+            boolean hasVehicles = false;
+            try (PreparedStatement ps = conn.prepareStatement(selectSql)) {
+                ps.setInt(1, currentUser.getUserId());
+                try (ResultSet rs = ps.executeQuery()) {
+                    while (rs.next()) {
+                        hasVehicles = true;
+                        String status = rs.getInt("is_available") == 1 ? "Available" : "Rented";
+                        System.out.printf("%d - %s - %s - %s\n",
+                                rs.getInt("vehicle_id"),
+                                rs.getString("vehicle_type"),
+                                rs.getString("brand_model"),
+                                status);
+                    }
+                }
+            }
+
+            if (!hasVehicles) {
+                System.out.println("You do not have any registered vehicles listed.");
+                System.out.println("\nPress ENTER to return...");
+                scan.nextLine();
+                return;
+            }
+
+            System.out.println("---------------------------------------------");
+            System.out.print("Enter the Vehicle ID you want to unlist/delete: ");
+            int vehicleId = scan.nextInt();
+            scan.nextLine(); // Clear scanner buffer
+
+            // Verify ownership before deleting
+            String verifySql = "SELECT vehicle_id FROM vehicles WHERE vehicle_id = ? AND owner_id = ?";
+            try (PreparedStatement ps = conn.prepareStatement(verifySql)) {
+                ps.setInt(1, vehicleId);
+                ps.setInt(2, currentUser.getUserId());
+                try (ResultSet rs = ps.executeQuery()) {
+                    if (!rs.next()) {
+                        System.out.println("\n[Error] Invalid Vehicle ID or you do not own this vehicle.");
+                        System.out.println("Press ENTER to continue...");
+                        scan.nextLine();
+                        return;
+                    }
+                }
+            }
+
+            // Remove the vehicle from the database
+            String deleteSql = "DELETE FROM vehicles WHERE vehicle_id = ?";
+            try (PreparedStatement ps = conn.prepareStatement(deleteSql)) {
+                ps.setInt(1, vehicleId);
+                ps.executeUpdate();
+            }
+
+            System.out.println("\n[Success] Your vehicle has been removed from the renting pool.");
+            System.out.println("Press ENTER to continue...");
+            scan.nextLine();
+
+        } catch (SQLException e) {
+            System.out.println("\n[Error] Database operation failed during unlisting.");
+            e.printStackTrace();
+            scan.nextLine();
+        }
     }
 
 }

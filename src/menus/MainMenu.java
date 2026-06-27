@@ -67,6 +67,12 @@ public class MainMenu {
                     menu.addVehicle();
                     break;
                 case "3":   
+                    menu.returnRent();
+                    break;
+                case "4":
+                    menu.unlistVehicle();
+                    break;
+                case "5":   
                     scan.close();
                     return;
                 default:
