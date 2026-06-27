@@ -16,10 +16,11 @@ public class MainMenu {
 
         while(true) {
             System.out.print("\033[H\033[2J");
-
-            switch (scan.nextLine()) {
+            
+            System.out.print(MenuStrings.MENU_STRING);
+            String ans = scan.nextLine();
+            switch (ans) {
                 case "1":
-                    
                     break;
                 case "5":
                     scan.close();
