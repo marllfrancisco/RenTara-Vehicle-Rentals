@@ -39,7 +39,9 @@ public class MenuStrings {
             =============================================
               1. Rent a Vehicle
               2. List my Vehicle for Rent
-              3. Exit
+              3. Return a Rented Vehicle
+              4. Unlist my Vehicle for Rent
+              5. Exit
             ---------------------------------------------
             Entry:\s""";
 }

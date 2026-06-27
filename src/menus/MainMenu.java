@@ -50,9 +50,9 @@ public class MainMenu {
     /**
      * Customer menu entry point
      */
-    public void customer_start() {
+    public void customer_start(models.User user) {
         Scanner scan = new Scanner(System.in);
-        CustomerMenu menu = new CustomerMenu(db, scan);
+        CustomerMenu menu = new CustomerMenu(db, scan, user);
 
         while(true) {
             System.out.print("\033[H\033[2J");
@@ -67,6 +67,12 @@ public class MainMenu {
                     menu.addVehicle();
                     break;
                 case "3":   
+                    menu.returnRent();
+                    break;
+                case "4":
+                    menu.unlistVehicle();
+                    break;
+                case "5":   
                     scan.close();
                     return;
                 default:
