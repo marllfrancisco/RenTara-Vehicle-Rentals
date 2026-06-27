@@ -9,7 +9,6 @@ public class User implements Model<Integer> {
     private String role;
     private String fullName;
     private boolean isKycApproved;
-    private LocalDateTime createdAt;
 
     public User() {}
 
@@ -31,7 +30,6 @@ public class User implements Model<Integer> {
     public String getRole() { return role; }
     public String getFullName() { return fullName; }
     public boolean isKycApproved() { return isKycApproved; }
-    public LocalDateTime getCreatedAt() { return createdAt; }
 
     // Setters
     public void setUserId(int userId) { this.userId = userId; }
@@ -40,7 +38,6 @@ public class User implements Model<Integer> {
     public void setRole(String role) { this.role = role; }
     public void setFullName(String fullName) { this.fullName = fullName; }
     public void setKycApproved(boolean isKycApproved) { this.isKycApproved = isKycApproved; }
-    public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
 
     @Override
     public String toString() {
