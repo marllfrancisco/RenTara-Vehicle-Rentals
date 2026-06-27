@@ -1,15 +1,17 @@
 package com.myapp;
 
-import java.util.Optional;
+import java.util.*;
 
 import database_management.Database;
 import menus.*;
 import models.User;
 
 public class Main {
+	static Scanner scan = new Scanner(System.in);
+	
     public static void main(String[] args) {
         Database db = new Database("RenTara.db");
-
+        
         Login login = new Login(db);
         MainMenu main_menu = new MainMenu(db);
         User user = new User();

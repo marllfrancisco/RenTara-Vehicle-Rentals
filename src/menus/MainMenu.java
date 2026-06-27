@@ -3,6 +3,7 @@ package menus;
 import java.util.Scanner;
 
 import database_management.Database;
+import models.Vehicle;
 
 public class MainMenu {
     Database db;
@@ -51,7 +52,7 @@ public class MainMenu {
      */
     public void customer_start() {
         Scanner scan = new Scanner(System.in);
-        CustomerMenu menu = new CustomerMenu();
+        CustomerMenu menu = new CustomerMenu(db, scan);
 
         while(true) {
             System.out.print("\033[H\033[2J");
@@ -73,5 +74,17 @@ public class MainMenu {
             }
 
         }
+    }
+    
+    public void viewRecordsModule() {	
+    	// Applied here is the polymorphism
+    	Vehicle[] vehicleList = null;
+	 
+		// Inside your display loop
+	    for (Vehicle v : vehicleList) {
+	        // Because you used inheritance, you don't need to check "if SUV" or "if Motorcycle"
+	        // You just call displayDetails(), and the correct class handles the output!
+	        v.displayDetails(); 
+	    } 
     }
 }
