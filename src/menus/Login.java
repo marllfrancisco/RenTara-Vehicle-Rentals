@@ -24,6 +24,9 @@ public class Login {
         return scan.nextLine();
     }
 
+    /**
+     * Account Registration Function
+     */
     private void register() {
 
         while(true) {
@@ -38,8 +41,10 @@ public class Login {
                 System.out.print("Full name: ");
                 String fullName = scan.nextLine();
 
+                // Create new User with corresponding information
                 User new_user = new User(username, password, "Customer", fullName);
 
+                // Insert to repository via *insert()*
                 UserRepository urepo = new UserRepository(db.getConnection());
                 urepo.insert(new_user);
                 return;
@@ -49,6 +54,13 @@ public class Login {
 
     }
 
+    /**
+     * Login actual function
+     * <p>
+     * Gets user input with 3 allowed incorrect attempts
+     * 
+     * @return User | null
+     */
     private Optional<User> login(){
         
         UserRepository urep = new UserRepository(db.getConnection());
@@ -74,6 +86,14 @@ public class Login {
         return Optional.empty();
     }
 
+    /**
+     * Login Menu Entry Point
+     * <p>
+     * Returns user if it's a correct login, 
+     * if registered or wrong login, returns null
+     * 
+     * @return User | null
+     */
     public Optional<User> start(){
 
         System.out.print(MenuStrings.LOGIN_STRING);

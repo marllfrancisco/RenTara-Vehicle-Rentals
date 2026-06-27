@@ -7,10 +7,17 @@ import database_management.Database;
 public class MainMenu {
     Database db;
 
+    /**
+     * 
+     * @param db The main Database to be used
+     */
     public MainMenu(Database db){
         this.db = db;
     }
 
+    /**
+     * Admin menu entry point
+     */
     public void admin_start(){
         Scanner scan = new Scanner(System.in);
         AdminMenu menu = new AdminMenu(db, scan);
@@ -39,6 +46,9 @@ public class MainMenu {
         }
     }
 
+    /**
+     * Customer menu entry point
+     */
     public void customer_start() {
         Scanner scan = new Scanner(System.in);
         CustomerMenu menu = new CustomerMenu();
