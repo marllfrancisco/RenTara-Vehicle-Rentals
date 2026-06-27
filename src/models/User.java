@@ -44,4 +44,14 @@ public class User implements Model<Integer> {
         return String.format("User{id=%d, username='%s', role='%s', kyc=%s}",
             userId, username, role, isKycApproved);
     }
+
+    public boolean isAdmin() {
+        if (role.equals("Admin")) return true;
+        else return false;
+    }
+
+    public void switchKycApproved() {
+        if (isKycApproved) setKycApproved(false);
+        else setKycApproved(true);
+    }
 }
