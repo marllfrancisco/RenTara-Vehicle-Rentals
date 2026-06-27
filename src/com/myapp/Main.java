@@ -1,9 +1,10 @@
 package com.myapp;
 
-import java.util.Scanner;
+import java.util.Optional;
 
 import database_management.Database;
 import menus.*;
+import models.User;
 
 public class Main {
     public static void main(String[] args) {
@@ -11,15 +12,19 @@ public class Main {
 
         Login login = new Login(db);
         MainMenu main_menu = new MainMenu(db);
+        Optional<User> result = login.start();
+        User user;
 
-        String role = login.start();
-        if (role.equals("admin")) {
+        if (result.isPresent()) { user = result.get(); }
+        else return;
+
+        if (user.getRole().equals("Admin")) {
             main_menu.admin_start();
         }
-        else if (role.equals("customer")) {
+        else if (user.getRole().equals("Customer")) {
             main_menu.customer_start();
-        }
-        System.out.print(role);
+        } 
+
 
         System.out.print("\033[H\033[2J");
     }
