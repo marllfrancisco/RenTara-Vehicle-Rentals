@@ -19,33 +19,38 @@ public class Login {
         this.db = db;
     }
 
-    public String ask_info(String question) {
+    private String ask_info(String question) {
         System.out.print("Enter " + question + ":");
         return scan.nextLine();
     }
 
-    public ResultSet compare_input(String user, String pass) throws SQLException {
+    private void register() {
 
-        try {
-            PreparedStatement statement = db.getConnection().prepareStatement("SELECT * FROM users WHERE username = ? AND password = ?");
-            statement.setString(1, user);
-            statement.setString(2, pass);
+        while(true) {
+            System.out.print("\033[H\033[2J"); //Clear screen
 
-            ResultSet rs = statement.executeQuery();
-            if (!rs.next()) {
-                throw new SQLException();
+            try {
+
+                System.out.print("Username: ");
+                String username = scan.nextLine();
+                System.out.print("Password: ");
+                String password = scan.nextLine();
+                System.out.print("Full name: ");
+                String fullName = scan.nextLine();
+
+                User new_user = new User(username, password, "Customer", fullName);
+
+                UserRepository urepo = new UserRepository(db.getConnection());
+                urepo.insert(new_user);
+                return;
             }
-            else {
-                return rs;
-            }
+            catch (Exception e) { e.printStackTrace(); }
         }
-        catch (SQLException e) {
-            throw new SQLException();
-        }
+
     }
 
-    public Optional<User> start(){
-
+    private Optional<User> login(){
+        
         UserRepository urep = new UserRepository(db.getConnection());
         int attempts = 3;
 
@@ -67,5 +72,25 @@ public class Login {
         }   
         scan.close();
         return Optional.empty();
+    }
+
+    public Optional<User> start(){
+
+        System.out.print(MenuStrings.LOGIN_STRING);
+        String selected = scan.nextLine();
+        
+        switch (selected) {
+            case "1":
+                return login();
+            case "2":
+                register();
+                return Optional.empty();
+            case "3":
+                return Optional.empty();
+            default:
+                return Optional.empty();
+        }
+
+
     }
 }
