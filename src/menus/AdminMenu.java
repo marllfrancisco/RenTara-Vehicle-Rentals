@@ -6,6 +6,7 @@ import java.util.Optional;
 import java.util.Scanner;
 
 import database_management.Database;
+import models.BookingRepository;
 import models.User;
 import models.UserRepository;
 
@@ -34,6 +35,7 @@ public class AdminMenu {
             System.out.print("\033[H\033[2J");
             System.out.println("User List");
             System.out.println("User List\nID         NAME                 APPROVED");
+
             for (int i = 0; i < users.size(); i++) {
                 if (!users.get(i).isAdmin()) {
                     System.out.println(formatAString(users.get(i).getId(), users.get(i).getFullName(), users.get(i).isKycApproved()));
@@ -81,7 +83,15 @@ public class AdminMenu {
     }
 
     public void viewRevenueReport() {
-        
+        BookingRepository repo = new BookingRepository(db.getConnection());
+        try {
+            repo.printTotal();
+            repo.print();
+        }
+        catch (SQLException e) {
+            e.printStackTrace();
+        }
+        scan.nextLine();
     }
 
 }

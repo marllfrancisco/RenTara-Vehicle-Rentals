@@ -8,6 +8,8 @@ public class Booking implements Model<Integer> {
     private double totalFee;
     private String status; // "Pending", "Approved", "Completed"
 
+    private String vehicleModel;
+
     public Booking() {}
 
     public Booking(int userId, int vehicleId, int daysRented, double totalFee) {
@@ -28,10 +30,13 @@ public class Booking implements Model<Integer> {
     public void setUserId(int userId) { this.userId = userId; }
     public int getVehicleId() { return vehicleId; }
     public void setVehicleId(int vehicleId) { this.vehicleId = vehicleId; }
-    public int getdaysRented() { return daysRented; }
-    public void setdaysRented(int daysRented) { this.daysRented = daysRented; }
-    public double gettotalFee() { return totalFee; }
-    public void settotalFee(double totalFee) { this.totalFee = totalFee; }
+    public int getDaysRented() { return daysRented; }
+    public void setDaysRented(int daysRented) { this.daysRented = daysRented; }
+    public double getTotalFee() { return totalFee; }
+    public void setTotalFee(double totalFee) { this.totalFee = totalFee; }
     public String getStatus() { return status; }
     public void setStatus(String status) { this.status = status; }
+
+    public String getVehicleModel() { return vehicleModel; }
+    public void setVehicleModel(String vehicleModel) { this.vehicleModel = vehicleModel; }
 }

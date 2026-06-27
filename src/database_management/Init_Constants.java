@@ -26,7 +26,7 @@ public class Init_Constants {
 
     public static final String CREATE_BOOKINGS_TABLE = """
             CREATE TABLE IF NOT EXISTS bookings (
-                booking_id INTEGER NOT NULL,
+                booking_id INTEGER PRIMARY KEY AUTOINCREMENT,
                 guest_id INTEGER NOT NULL,
                 vehicle_id INTEGER NOT NULL,
                 days_rented INTEGER NOT NULL,

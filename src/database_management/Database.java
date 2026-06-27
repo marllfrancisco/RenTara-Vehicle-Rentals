@@ -9,7 +9,7 @@ public class Database {
     public Database(String filename) {
     	try {
             // Establish the connection
-            String url = "jdbc:sqlite:" + filename;
+            String url = "jdbc:sqlite:data/" + filename;
             this.conn = DriverManager.getConnection(url);
             
             // Apply the PRAGMA fixes to prevent [SQLITE_BUSY]

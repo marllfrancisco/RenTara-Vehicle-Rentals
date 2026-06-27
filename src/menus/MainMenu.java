@@ -36,6 +36,7 @@ public class MainMenu {
                     menu.viewAll();
                     break;
                 case "3":
+                    menu.viewRevenueReport();
                     break;
                 case "4":
                     scan.close();
@@ -85,12 +86,5 @@ public class MainMenu {
     public void viewRecordsModule() {	
     	// Applied here is the polymorphism
     	Vehicle[] vehicleList = null;
-	 
-		// Inside your display loop
-	    for (Vehicle v : vehicleList) {
-	        // Because you used inheritance, you don't need to check "if SUV" or "if Motorcycle"
-	        // You just call displayDetails(), and the correct class handles the output!
-	        v.displayDetails(); 
-	    } 
     }
 }

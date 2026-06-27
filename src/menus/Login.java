@@ -32,7 +32,7 @@ public class Login {
     }
 
     private String ask_info(String question) {
-        System.out.print("\nEnter " + question + ": ");
+        System.out.print("Enter " + question + ": ");
         return scan.nextLine();
     }
 
@@ -87,6 +87,7 @@ public class Login {
 
             try {
                 Optional<User> user = urep.findByUserAndPass(username, password);
+                if (user.isEmpty()) throw new SQLException();
                 return user;
             }
             catch (SQLException e) {
