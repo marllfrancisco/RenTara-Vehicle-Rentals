@@ -21,7 +21,7 @@ public class Main {
         else return;
 
         if (user.isAdmin()) { main_menu.admin_start(); }
-        else { main_menu.customer_start(); } 
+        else { main_menu.customer_start(user); } 
 
         System.out.print("\033[H\033[2J");
     }
