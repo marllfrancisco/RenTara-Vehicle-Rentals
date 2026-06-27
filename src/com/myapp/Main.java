@@ -9,8 +9,13 @@ public class Main {
 
         Login login = new Login(db);
         MainMenu main_menu = new MainMenu(db);
-        if (login.start() == true) {
-            main_menu.start();
+
+        String value = login.start();
+        if (value == "Admin") {
+            main_menu.admin_start();
+        }
+        else if (value == "Customer") {
+            main_menu.customer_start();
         }
 
         System.out.print("\033[H\033[2J");
