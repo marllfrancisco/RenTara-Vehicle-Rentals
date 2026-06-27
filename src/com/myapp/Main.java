@@ -1,5 +1,7 @@
 package com.myapp;
 
+import java.util.Scanner;
+
 import database_management.Database;
 import menus.*;
 
@@ -10,13 +12,14 @@ public class Main {
         Login login = new Login(db);
         MainMenu main_menu = new MainMenu(db);
 
-        String value = login.start();
-        if (value == "Admin") {
+        String role = login.start();
+        if (role.equals("admin")) {
             main_menu.admin_start();
         }
-        else if (value == "Customer") {
+        else if (role.equals("customer")) {
             main_menu.customer_start();
         }
+        System.out.print(role);
 
         System.out.print("\033[H\033[2J");
     }
