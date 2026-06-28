@@ -16,14 +16,6 @@ public class AdminMenu {
     Scanner scan; 
     public AdminMenu(Database db, Scanner scan) { this.db = db; this.scan = scan;}
 
-    private String formatAString(Integer ID, String username, Boolean approved) {
-        String idFormatted = String.format("%-5s", ID);
-        String nameFormatted = String.format("%-30s", username);
-        String approvedFormatted = String.format("%-10s", approved);
-
-        return idFormatted + nameFormatted + approvedFormatted;
-    }
-
 
     public void approveKYC() {
 
@@ -38,34 +30,61 @@ public class AdminMenu {
             // %-20s = String, left-aligned (-), 20 characters wide
             // %-10s = String, left-aligned (-), 10 characters wide
             // %n    = Platform-independent newline (like \n)
-            String rowTemplate = "%-5s %-20s %-10s%n";
+            String rowTemplate = "%-5s %-10s %-15s %-5s%n";
             
-            System.out.println("\n\t\t===== User List =====");
-            System.out.printf(rowTemplate, "ID", "NAME", "APPROVED");
-            System.out.println("----------------------------------------");
+            System.out.println("\n\t   ===== User List =====");
+            System.out.printf(rowTemplate, "ID", "USERNAME", "NAME", "APPROVED");
+            System.out.println("-------------------------------------------");
             
             
             for (int i = 0; i < users.size(); i++) {
                 if (!users.get(i).isAdmin()) {
                     System.out.printf(rowTemplate,
                     		users.get(i).getId(), 
+                    		users.get(i).getUsername(),
                     		users.get(i).getFullName(), 
                     		users.get(i).isKycApproved());
                 }
             }
 
-            System.out.print("Enter ID: ");
-            int ID = scan.nextInt();
+            System.out.println();
+            System.out.print("Enter Username or ID: ");
+            String input = scan.nextLine().trim(); 
             
-            Optional<User> search = urepo.findById(ID);
-            if (search.isPresent()) {
-                User user = search.get();
-                if (!user.isAdmin()){ // Prevent admin tampering
+            if (input.isEmpty()) {
+                System.out.println("\n[Canceled] Proceeding to Main Menu...");
+                return; // Exits the module and returns to the menu loop
+            }
+
+            // single placeholder 
+            Optional<User> foundUser = Optional.empty();
+
+            // Check if digits
+            if (input.matches("\\d+")) {
+                int id = Integer.parseInt(input); // String to int 
+                foundUser = urepo.findById(id);   
+            } else {
+                // If letters = username
+                foundUser = urepo.findByUsername(input);
+            }
+            
+            
+            // Now process the single result variable
+            if (foundUser.isPresent()) {
+            	User user = foundUser.get();
+            	
+                if (!user.isAdmin()) { // Prevent admin tampering
                     user.switchKycApproved();
                     urepo.update(user);
+                    System.out.println("\n[Success] User " + user.getFullName() + " (" + user.getUsername() + ") KYC approved.");
+                } else {
+                    System.out.println("\n[Error] Cannot modify Admin accounts.");
                 }
+            } else {
+                System.out.println("\n[Error] No user found matching: '" + input + "'");
             }
-            System.out.println("Press ENTER to continue");
+
+            System.out.println("\nPress ENTER to continue");
             scan.nextLine();
         }
         catch (SQLException e) {
@@ -73,6 +92,7 @@ public class AdminMenu {
         }
     }
 
+    // View all Users
     public void viewAll() {
 
         UserRepository urepo = new UserRepository(db.getConnection());
@@ -82,17 +102,21 @@ public class AdminMenu {
 
             System.out.print("\033[H\033[2J");
             
-            String rowTemplate = "%-5s %-15s %-10s%n";
+            String rowTemplate = "%-5s %-10s %-15s %-5s%n";
             
-            System.out.println("\n\t    ===== User List =====");
-            System.out.printf(rowTemplate, "ID", "NAME", "APPROVED");
-            System.out.println("----------------------------------------");
+            System.out.println("\n\t   ===== User List =====");
+            System.out.printf(rowTemplate, "ID", "USERNAME", "NAME", "APPROVED");
+            System.out.println("-------------------------------------------");
+            
             
             for (int i = 0; i < users.size(); i++) {
-                System.out.printf(rowTemplate,
-                		users.get(i).getId(), 
-                		users.get(i).getFullName(), 
-                		users.get(i).isKycApproved());
+                if (!users.get(i).isAdmin()) {
+                    System.out.printf(rowTemplate,
+                    		users.get(i).getId(), 
+                    		users.get(i).getUsername(),
+                    		users.get(i).getFullName(), 
+                    		users.get(i).isKycApproved());
+                }
             }
 
             System.out.println("\nPress ENTER to continue");
@@ -106,12 +130,15 @@ public class AdminMenu {
     public void viewRevenueReport() {
         BookingRepository repo = new BookingRepository(db.getConnection());
         try {
+        	System.out.println();
             repo.printTotal();
             repo.print();
         }
         catch (SQLException e) {
             e.printStackTrace();
         }
+        
+        System.out.println("\nPress ENTER to continue");
         scan.nextLine();
     }
 
