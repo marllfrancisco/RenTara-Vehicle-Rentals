@@ -57,8 +57,7 @@ public class CustomerMenu {
             try {
                 vehicleId = Integer.parseInt(idInput);
             } catch (NumberFormatException e) {
-                System.out.println("\n[Error] Invalid ID. Must be a number. \nPress ENTER to continue.");
-                scan.nextLine();
+            	System.out.println("\n[Invalid] ID format as number only.\nPress ENTER to continue.");                scan.nextLine();
                 return;
             }
             
@@ -107,7 +106,7 @@ public class CustomerMenu {
             vehicleRepo.update(vehicle);
 
             System.out.println("\n[Success] Rental request submitted successfully!");
-            System.out.printf("Total Fee: PHP %.2f (Pending Approval)\n", totalFee);
+            System.out.printf("Total Fee: PHP %.2f \n", totalFee);
             System.out.println("\nPress ENTER to continue...");
             scan.nextLine();
 
@@ -214,8 +213,7 @@ public class CustomerMenu {
             try {
                 bookingId = Integer.parseInt(idInput);
             } catch (NumberFormatException e) {
-                System.out.println("\n[Error] Invalid ID format. \nPress ENTER to continue.");
-                scan.nextLine();
+            	System.out.println("\n[Invalid] ID format as number only.\nPress ENTER to continue.");                scan.nextLine();
                 return;
             }
             
@@ -261,20 +259,21 @@ public class CustomerMenu {
             System.out.print("\033[H\033[2J");
             System.out.println("\n=============================================");
             System.out.println("              YOUR LISTED VEHICLES           ");
+            System.out.println("                 Rented Excluded         ");
             System.out.println("=============================================");
 
 
             VehicleRepository repo = new VehicleRepository(db.getConnection());
             List<Vehicle> vehicles = repo.findAllAvailableOfOwner(currentUser.getUserId());
             
-            for (int i = 0; i < vehicles.size(); i++) {
-                Vehicle curr = vehicles.get(i);
+            for (Vehicle curr : vehicles) {
                 String isAvailable = curr.isAvailable() ? "Available" : "Rented";
-                System.out.printf("%d -- %s -- %s -- %s\n", curr.getVehicleId(), curr.getVehicleType(), curr.getBrandModel(), isAvailable);
+                System.out.printf("%d -- %s -- %s -- %s\n", curr.getVehicleId(), curr.getVehicleType(), 
+                											curr.getBrandModel(), isAvailable);
             }
 
             if (vehicles.isEmpty()) {
-                System.out.println("You do not have any registered vehicles listed.");
+                System.out.println("You do not have any available vehicles listed.");
                 System.out.println("\nPress ENTER to return.");
                 scan.nextLine();
                 return;
@@ -283,35 +282,63 @@ public class CustomerMenu {
             System.out.println("---------------------------------------------");
             System.out.print("Enter Vehicle ID to unlist/delete: ");
             String idInput = scan.nextLine().trim();
-            if (idInput.isEmpty()) return;
+            
+            if (idInput.isEmpty()) {
+            	System.out.println("\n[Canceled] Proceeding to Main Menu...");
+                return;
+            }
 
             int vehicleId;
             try {
                 vehicleId = Integer.parseInt(idInput);
             } catch (NumberFormatException e) {
-                System.out.println("\n[Error] Invalid ID format.\nPress ENTER to continue.");
+                System.out.println("\n[Invalid] ID format as number only.\nPress ENTER to continue.");
                 scan.nextLine();
                 return;
             }
             
-            int rowsDeleted = repo.delete(currentUser.getUserId(), vehicleId);
-            if (rowsDeleted == 0) {
-                System.out.println("\n[Error] Failed to delete. "
-                		+ "\nEither incorrect Vehicle ID or you do not own it.");
-                
-            } else {
-                System.out.println("\n[Success] Your vehicle has been removed from the renting pool.");
+            boolean proceed = false;
+
+            while (true) {
+                System.out.print("Are you sure you want to unlist this vehicle? [Y/N]: ");
+                String choice = scan.nextLine().trim().toLowerCase();
+
+                if (choice.equals("y")) {
+                	proceed = true;
+                    break; // Exit the loop and proceed to delete
+                } else if (choice.equals("n")) {
+                	proceed = false;
+                    System.out.println("\n[Canceled] Unlisting aborted.");
+                    return; 
+                } else {
+                    System.out.println("[Invalid] Only accepts 'Y' or 'N'");
+                    // The loop repeats here
+                }
             }
+
+            // 2. Only execute deletion if the user confirmed
+            if (proceed) {
+                int rowsDeleted = repo.delete(currentUser.getUserId(), vehicleId);
+                
+                if (rowsDeleted == 0) {
+                    System.out.println("\n[Error] Failed to delete. "
+                            + "\nEither incorrect Vehicle ID or you do not own it.");
+                } else {
+                    System.out.println("\n[Success] Your vehicle has been removed from the renting pool.");
+                }
+            }
+            
             
             System.out.println("Press ENTER to continue.");
             scan.nextLine();
 
-        } catch (SQLException e) {
+            } catch (SQLException e) {
             System.out.println("\n[Error] Database operation failed during unlisting.");
             e.printStackTrace();
             System.out.println("Press ENTER to continue.");
             scan.nextLine();
-        }
+            }  
+        
     }
 
     public void editVehicle() {
@@ -319,6 +346,7 @@ public class CustomerMenu {
             System.out.print("\033[H\033[2J");
             System.out.println("\n=============================================");
             System.out.println("              YOUR LISTED VEHICLES           ");
+            System.out.println("                 Rented Excluded         ");
             System.out.println("=============================================");
 
             VehicleRepository vehicleRepo = new VehicleRepository(db.getConnection());
@@ -330,7 +358,7 @@ public class CustomerMenu {
             }
 
             if (vehicles.isEmpty()) {
-                System.out.println("You do not have any registered vehicles listed.");
+                System.out.println("You do not have any available vehicles listed.");
                 System.out.println("\nPress ENTER to return.");
                 scan.nextLine();
                 return;
@@ -339,14 +367,17 @@ public class CustomerMenu {
             System.out.println("---------------------------------------------");
             System.out.print("Enter Vehicle ID to edit: ");
             String idInput = scan.nextLine().trim();
-            if (idInput.isEmpty()) return;
+            
+            if (idInput.isEmpty()) {
+                System.out.println("\n[Canceled] Proceeding to Main Menu...");
+                return;
+            }
 
             int vehicleId;
             try {
                 vehicleId = Integer.parseInt(idInput);
             } catch (NumberFormatException e) {
-                System.out.println("\n[Error] Invalid ID format.\nPress ENTER to continue.");
-                scan.nextLine();
+            	System.out.println("\n[Invalid] ID format as number only.\nPress ENTER to continue.");                scan.nextLine();
                 return;
             }
 
@@ -362,22 +393,54 @@ public class CustomerMenu {
             }
 
             // Gets new info via scanner
-            System.out.print("Enter new brand model:");
+            System.out.print("Enter new brand model: ");
             String brand_model = scan.nextLine();
-            System.out.print("Enter new daily rate :");
-            Double daily_rate = scan.nextDouble();
-            scan.nextLine();
+            
+            if (brand_model.isEmpty()) {
+                System.out.println("\n[Canceled] Proceeding to Main Menu...");
+                return;
+            }
+            
+               
+            System.out.print("Enter new daily rate: ");
+            String dailyRate = scan.nextLine().trim(); 
 
-            // Update non-empty fields
-            if (!brand_model.isBlank()) vehicle.setBrandModel(brand_model);
-            if (daily_rate > 0) vehicle.setDailyRate(daily_rate);
+            if (dailyRate.isEmpty()) {
+                System.out.println("\n[Canceled] Returning to menu...");
+                return;
+            }
 
-            // Finalize update via repository
-            vehicleRepo.update(vehicle);
+            double daily_rate = 0;
+            boolean conf = true;
+            
+            try {
+                daily_rate = Double.parseDouble(dailyRate);
 
-            System.out.println("Vehicle successfully updated!");
-            System.out.println("Press ENTER to continue.");
-            scan.nextLine();
+                if (daily_rate < 0) {
+                    System.out.println("\n[Error] Rate cannot be negative.");
+                    conf = false;
+                    return;
+                }
+
+            } catch (NumberFormatException e) {
+                // 4. Handle non-numeric input
+                System.out.println("\n[Error] Invalid rate. Must be a number.");
+                conf = false;
+            }
+            
+
+            if (conf) {
+            	// Update non-empty fields
+                if (!brand_model.isBlank()) vehicle.setBrandModel(brand_model);
+                if (daily_rate > 0) vehicle.setDailyRate(daily_rate);
+
+                // Finalize update via repository
+                vehicleRepo.update(vehicle);
+            	System.out.println("\nVehicle successfully updated!");
+                System.out.println("Press ENTER to continue.");
+                scan.nextLine();
+            }
+            
 
         } catch (SQLException e) {
             System.out.println("\n[Error] Databse operation failed");
