@@ -4,7 +4,7 @@
  * 		In both REGISTER and LOGIN, after entering username, DB should look for that 
  * 		username, if it exist, reject, make the user try another username
  * 
- * 2. Password should be in asterisk, well if this is only possible
+ * 
  * 
  */
 
@@ -40,7 +40,9 @@ public class Login {
      * Account Registration Function
      */
     private void register() {
-
+    	// Instantiate repository outside the loop to save resources
+        UserRepository urepo = new UserRepository(db.getConnection());
+        
         while(true) {
             System.out.print("\033[H\033[2J"); //Clear screen
 
@@ -48,6 +50,15 @@ public class Login {
 
                 System.out.print("\nCreate Username: ");
                 String username = scan.nextLine();
+                
+                // Username taken check:
+                if (urepo.findByUsername(username).isPresent()) {
+                    System.out.println("\n[Error] Username '" + username + "' is already taken.");
+                    System.out.println("Press Enter to try again...");
+                    scan.nextLine(); // Pause
+                    continue; // Restarts the loop to ask for username again
+                }
+                
                 System.out.print("Create Password: ");
                 String password = scan.nextLine();
                 System.out.print("Full name: ");
@@ -56,12 +67,12 @@ public class Login {
                 // Create new User with corresponding information
                 User new_user = new User(username, password, "Customer", fullName);
 
-                // Insert to repository via *insert()*
-                UserRepository urepo = new UserRepository(db.getConnection());
+                // Insert to repository
                 urepo.insert(new_user);
+                System.out.println("\n[Success] Account created!");
                 return;
-            }
-            catch (Exception e) { e.printStackTrace(); }
+                
+            } catch (Exception e) { e.printStackTrace(); }
         }
 
     }
@@ -74,30 +85,67 @@ public class Login {
      * @return User | null
      */
     private Optional<User> login(){
-        
         UserRepository urep = new UserRepository(db.getConnection());
         int attempts = 3;
 
-        while (attempts != 0) {
-
+        while (attempts > 0) {
             System.out.print("\033[H\033[2J");
 
             String username = ask_info("Username");
-            String password = ask_info("Password");
 
             try {
+                // check Username
+                Optional<User> existingUser = urep.findByUsername(username);
+                
+                if (existingUser.isEmpty()) {
+                    attempts -= 1;
+                    System.out.println("\n[Error] Username '" + username + "' does not exist.");
+                    System.out.println("Attempts remaining: " + attempts);
+                   
+                    if(attempts > 0) {
+                    	System.out.println("Press Enter to continue...");
+                    	scan.nextLine();
+                    } else {
+                    	System.out.println("System Exiting.");
+                    }
+                    
+                    continue; 
+                }
+
+                String password = ask_info("Password");
+
+                //checks Username + Password 
                 Optional<User> user = urep.findByUserAndPass(username, password);
-                if (user.isEmpty()) throw new SQLException();
-                return user;
-            }
-            catch (SQLException e) {
+                if (user.isEmpty()) {
+                    attempts -= 1;
+                    System.out.println("\n[Error] Incorrect password.");
+                    System.out.println("Attempts remaining: " + attempts);
+                    
+                    if(attempts > 0) {
+                    	System.out.println("Press Enter to continue...");
+                    	scan.nextLine();
+                    } else {
+                    	System.out.println("System Exiting.");
+                    }
+                    continue;
+                }
+                
+                
+                return user; // Success login
+
+            } catch (SQLException e) {
+                // catches errors for BOTH database queries above
                 e.printStackTrace();
                 attempts -= 1;
+                System.out.println("[Error] in Database. \nPress Enter to continue...");
+                scan.nextLine();
             }
         }   
-        scan.close();
+        // dont scanner.close here
+        // it breaks loop when failed 3 times
         return Optional.empty();
     }
+    
 
     public Optional<User> start() {
         while (true) { // keeps menu alive
@@ -115,17 +163,18 @@ public class Login {
                     return login(); // Only exits the loop if login returns a user
                 case "2":
                     register();
-                    // After registering, we don't return, so it loops back to the menu
-                    break; 
+                    break; // this loops back to the menu
                 case "3":
+                	System.out.println("\nThank you for considering RenTara.");
                     System.out.println("Exiting system...");
+                    scan.close();
                     return Optional.empty();
                 default:
                     // Handle invalid input
                     System.out.println("\n[Error] Invalid option: '" + selected+ "'");
-                    System.out.println("Press Enter to continue...");
+                    System.out.println("\nPress Enter to continue...");
                     scan.nextLine(); // Pause so they can read the error
-                    break; // restarts the loop
+                    break;
             }
         }
     }
