@@ -39,10 +39,14 @@ public class MainMenu {
                     menu.viewRevenueReport();
                     break;
                 case "4":
-                    scan.close();
-                    return;
+                	System.out.println("\nLogged out.");
+                    return; // Exits the admin_start method smh
                 default:
-                    break;
+                	// Handle invalid input
+                    System.out.println("\n[Error] Invalid option: '" + ans + "'");
+                    System.out.println("\nPress Enter to continue...");
+                    scan.nextLine(); // Pause so they can read the error
+                    break; // restarts the loop
             }
 
         }
