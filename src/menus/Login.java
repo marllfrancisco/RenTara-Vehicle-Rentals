@@ -1,23 +1,10 @@
 
-/* CHANGES NEED TO IMPLEMENT:
- * 1. Username check
- * 		In both REGISTER and LOGIN, after entering username, DB should look for that 
- * 		username, if it exist, reject, make the user try another username
- * 
- * 
- * 
- */
-
-
-
 package menus;
 
 import database_management.Database;
 import models.User;
 import models.UserRepository;
 
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Optional;
 import java.util.Scanner;
@@ -50,6 +37,8 @@ public class Login {
 
                 System.out.print("\nCreate Username: ");
                 String username = scan.nextLine();
+                if (username.isEmpty()) return;
+                	
                 
                 // Username taken check:
                 if (urepo.findByUsername(username).isPresent()) {
@@ -61,8 +50,11 @@ public class Login {
                 
                 System.out.print("Create Password: ");
                 String password = scan.nextLine();
+                if (password.isEmpty()) return;
+                
                 System.out.print("Full name: ");
                 String fullName = scan.nextLine();
+                if (fullName.isEmpty()) return;
 
                 // Create new User with corresponding information
                 User new_user = new User(username, password, "Customer", fullName);
@@ -92,6 +84,7 @@ public class Login {
             System.out.print("\033[H\033[2J");
 
             String username = ask_info("Username");
+            if (username.isEmpty()) continue;
 
             try {
                 // check Username
@@ -113,6 +106,7 @@ public class Login {
                 }
 
                 String password = ask_info("Password");
+                if (password.isEmpty()) continue;
 
                 //checks Username + Password 
                 Optional<User> user = urep.findByUserAndPass(username, password);
@@ -130,8 +124,10 @@ public class Login {
                     continue;
                 }
                 
-                
-                return user; // Success login
+                User custUser = existingUser.get();
+                System.out.println("\n[Success] Logging In...");
+                System.out.println("Welcome, "+ custUser.getFullName());
+                return user;
 
             } catch (SQLException e) {
                 // catches errors for BOTH database queries above
@@ -166,7 +162,6 @@ public class Login {
                     break; // this loops back to the menu
                 case "3":
                 	System.out.println("\nThank you for considering RenTara.");
-                    System.out.println("Exiting system...");
                     scan.close();
                     return Optional.empty();
                 default:

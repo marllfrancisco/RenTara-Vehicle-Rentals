@@ -38,21 +38,21 @@ public class BookingRepository extends BaseRepository<Booking, Integer> {
     protected int getUpdateParamCount() { return 5; }
 
     @Override
-    protected void setInsertParams(PreparedStatement ps, Booking vehicle) throws SQLException {
-        ps.setInt(1, vehicle.getUserId());
-        ps.setInt(2, vehicle.getVehicleId());
-        ps.setInt(3, vehicle.getDaysRented());
-        ps.setDouble(4, vehicle.getTotalFee());
-        ps.setString(5, vehicle.getStatus());
+    protected void setInsertParams(PreparedStatement ps, Booking booking) throws SQLException {
+        ps.setInt(1, booking.getUserId());
+        ps.setInt(2, booking.getVehicleId());
+        ps.setInt(3, booking.getDaysRented());
+        ps.setDouble(4, booking.getTotalFee());
+        ps.setString(5, booking.getStatus());
     }
 
     @Override
-    protected void setUpdateParams(PreparedStatement ps, Booking vehicle) throws SQLException {
-        ps.setInt(1, vehicle.getUserId());
-        ps.setInt(2, vehicle.getVehicleId());
-        ps.setInt(3, vehicle.getDaysRented());
-        ps.setDouble(4, vehicle.getTotalFee());
-        ps.setString(5, vehicle.getStatus());
+    protected void setUpdateParams(PreparedStatement ps, Booking booking) throws SQLException {
+        ps.setInt(1, booking.getUserId());
+        ps.setInt(2, booking.getVehicleId());
+        ps.setInt(3, booking.getDaysRented());
+        ps.setDouble(4, booking.getTotalFee());
+        ps.setString(5, booking.getStatus());
     }
 
     @Override
@@ -102,6 +102,7 @@ public class BookingRepository extends BaseRepository<Booking, Integer> {
         return bookings;
     }
 
+    // TOTAL REVENUE --------------
     public double getTotalRevenue() throws SQLException {
         String sql = """
             SELECT COALESCE(SUM(total_fee), 0) AS total_revenue
@@ -117,10 +118,34 @@ public class BookingRepository extends BaseRepository<Booking, Integer> {
         }
         return 0.0;
     }
+    
     public void printTotal() throws SQLException {
         double total = getTotalRevenue();
         
-        System.out.printf("Completed Bookings Revenue: $%,.2f%n", total);
+        System.out.printf("Completed Bookings Revenue: PHP %,.2f%n", total);
+    }
+    
+    // PENDING REVENUE --------------
+    public double getPendingRevenue() throws SQLException {
+        String sql = """
+            SELECT COALESCE(SUM(total_fee), 0) AS pending_revenue
+            FROM bookings
+            WHERE status = 'Pending'
+            """;
+        
+        try (Statement stmt = conn.createStatement();
+             ResultSet rs = stmt.executeQuery(sql)) {
+            if (rs.next()) {
+                return rs.getDouble("pending_revenue");
+            }
+        }
+        return 0.0;
+    }
+    
+    public void printPending() throws SQLException {
+        double total = getPendingRevenue();
+        
+        System.out.printf("Pending Bookings Revenue: PHP %,.2f%n", total);
     }
 
     public List<Map<String, Object>> findMostRented() throws SQLException {
@@ -144,7 +169,7 @@ public class BookingRepository extends BaseRepository<Booking, Integer> {
              ResultSet rs = stmt.executeQuery(sql)) {
             while (rs.next()) {
                 Map<String, Object> row = new HashMap<>();
-                row.put("vehicle_type", rs.getInt("vehicle_type"));
+                row.put("vehicle_type", rs.getString("vehicle_type"));
                 row.put("brand_model", rs.getString("brand_model"));
                 row.put("daily_rate", rs.getDouble("daily_rate"));
                 row.put("rental_count", rs.getInt("rental_count"));
@@ -161,7 +186,7 @@ public class BookingRepository extends BaseRepository<Booking, Integer> {
         
         System.out.println("MOST RENTED VEHICLES");
         System.out.println("=".repeat(80));
-        System.out.printf("%-20s %-12s %10s %10s %10s %15s%n",
+        System.out.printf("%-15s %-12s %10s %10s %5s %15s%n",
             "Type", "Model", "Per Day", "Rentals", "Days", "Total Earned");
         System.out.println("=".repeat(80));
         
@@ -169,7 +194,7 @@ public class BookingRepository extends BaseRepository<Booking, Integer> {
             System.out.println("No data available");
         } else {
         for (Map<String, Object> row : data) {
-                System.out.printf("%-10s %-20s %10.2f %10d %10d %15.2f%n",
+                System.out.printf("%-15s %-12s %10.2f %10d %5d %15.2f%n",
                     row.get("vehicle_type"),
                     row.get("brand_model"),
                     row.get("daily_rate"),

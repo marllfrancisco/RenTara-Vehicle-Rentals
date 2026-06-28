@@ -24,6 +24,7 @@ public class Init_Constants {
                 FOREIGN KEY (owner_id) REFERENCES users(user_id))
             """;
 
+    		// DROP TABLE IF EXISTS bookings;
     public static final String CREATE_BOOKINGS_TABLE = """
             CREATE TABLE IF NOT EXISTS bookings (
                 booking_id INTEGER PRIMARY KEY AUTOINCREMENT,

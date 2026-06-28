@@ -3,7 +3,7 @@ package menus;
 import java.util.Scanner;
 
 import database_management.Database;
-import models.Vehicle;
+import models.User;
 
 public class MainMenu {
     Database db;
@@ -58,7 +58,7 @@ public class MainMenu {
     public void customer_start(models.User user) {
         Scanner scan = new Scanner(System.in);
         CustomerMenu menu = new CustomerMenu(db, scan, user);
-
+        
         while(true) {
             System.out.print("\033[H\033[2J");
             
@@ -81,14 +81,14 @@ public class MainMenu {
                 	System.out.println("\nLogged out.");
                     return;
                 default:
-                    break;
+                	// Handle invalid input
+                    System.out.println("\n[Error] Invalid option: '" + ans + "'");
+                    System.out.println("Press Enter to continue...");
+                    scan.nextLine(); // Pause so they can read the error
+                    break; // restarts the loop
             }
 
         }
     }
     
-    public void viewRecordsModule() {	
-    	// Applied here is the polymorphism
-    	Vehicle[] vehicleList = null;
-    }
 }

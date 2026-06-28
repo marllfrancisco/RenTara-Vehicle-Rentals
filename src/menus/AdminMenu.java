@@ -53,7 +53,7 @@ public class AdminMenu {
             
             if (input.isEmpty()) {
                 System.out.println("\n[Canceled] Proceeding to Main Menu...");
-                return; // Exits the module and returns to the menu loop
+                return; // Exit - returns to menu loop
             }
 
             // single placeholder 
@@ -132,6 +132,7 @@ public class AdminMenu {
         try {
         	System.out.println();
             repo.printTotal();
+            repo.printPending();
             repo.print();
         }
         catch (SQLException e) {

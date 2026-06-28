@@ -13,7 +13,7 @@ import models.BookingRepository;
 
 public class CustomerMenu {
 
-    private static final String BookingRepository = null;
+    //private static final String BookingRepository = null;
     private final Database db;
     private final Scanner scan;
     private final User currentUser;
@@ -31,35 +31,79 @@ public class CustomerMenu {
             BookingRepository bookingRepo = new BookingRepository(db.getConnection());
             List<Vehicle> vehicles = vehicleRepo.findAllAvailable();
 
-            for (int i = 0; i < vehicles.size(); i++) {
-                Vehicle curr = vehicles.get(i);
-                System.out.printf("%d -- %S -- %S -- Php %.2f\n", curr.getVehicleId(), curr.getVehicleType(), curr.getBrandModel(), curr.getDailyRate());
+            for (Vehicle curr : vehicles) {
+                System.out.printf("%d -- %S -- %S -- Php %.2f\n", curr.getVehicleId(), curr.getVehicleType(), 
+                													curr.getBrandModel(), curr.getDailyRate());
             }
 
             if (vehicles.isEmpty()) {
-                System.out.println("No vehicles are currently available for rent.");
-                System.out.println("\nPress ENTER to return...");
+                System.out.println("No vehicles are currently available.");
+                System.out.println("\nPress ENTER to return.");
                 scan.nextLine();
                 return;
             }
 
             System.out.println("---------------------------------------------");
-            System.out.print("Enter the Vehicle ID you want to rent: ");
-            int vehicleId = scan.nextInt();
-            System.out.print("Enter number of days to rent: ");
-            int days = scan.nextInt();
-            scan.nextLine(); // Clear scanner buffer
+            System.out.print("Enter Vehicle ID to rent: ");
+            String idInput = scan.nextLine().trim();
 
+            if (idInput.isEmpty()) {
+                System.out.println("\n[Canceled] Proceeding to Main Menu...");
+                return;
+            }
+            
+            //validating input
+            int vehicleId;
+            try {
+                vehicleId = Integer.parseInt(idInput);
+            } catch (NumberFormatException e) {
+                System.out.println("\n[Error] Invalid ID. Must be a number. \nPress ENTER to continue.");
+                scan.nextLine();
+                return;
+            }
+            
+            //validating DB record
             Optional<Vehicle> result = vehicleRepo.findById(vehicleId);
-            Vehicle vehicle = new Vehicle();
+            if (result.isEmpty()) {
+                System.out.println("\n[Error] Vehicle ID not found. \nPress ENTER to continue...");
+                scan.nextLine();
+                return;
+            }
+            Vehicle vehicle = result.get();
+            
+            // PREVENT RENTING THEIR OWN VEHICLE
+            if (vehicle.getOwnerId() == currentUser.getUserId()) {
+                System.out.println("\n[Error] You cannot rent a vehicle you own.");
+                System.out.println("Press ENTER to continue.");
+                scan.nextLine();
+                return;
+            }
+            
+            System.out.print("Enter how many days to rent: ");
+            String daysInput = scan.nextLine().trim();
+            
+            
+            if (daysInput.isEmpty()) {
+                System.out.println("\n[Canceled] Proceeding to Main Menu...");
+                return;
+            }
 
-            if (result.isPresent()) vehicle = result.get();
+            int days;
+            try {
+                days = Integer.parseInt(daysInput);
+            } catch (NumberFormatException e) {
+                System.out.println("\n[Error] Invalid number of days. \nPress ENTER to continue.");
+                scan.nextLine();
+                return;
+            }
+
+            
+            // TRANSACTION:
             double totalFee =vehicle.getDailyRate() * days;
-
             Booking booking = new Booking(currentUser.getUserId(), vehicleId, days, totalFee);
+            
             bookingRepo.insert(booking);
-
-            vehicle.setIsAvailable(false);
+            vehicle.setIsAvailable(false); // Now rented
             vehicleRepo.update(vehicle);
 
             System.out.println("\n[Success] Rental request submitted successfully!");
@@ -75,8 +119,13 @@ public class CustomerMenu {
     }
  
     public void addVehicle() {
-
-        if (!currentUser.isKycApproved()) return; // pls add error notif later
+        if (!currentUser.isKycApproved()) {
+            System.out.println("\n[Error] Listing Vehicles feature is locked.");
+            System.out.println("Pending KYC approval. Pls be patient.");
+            System.out.println("Press ENTER to return.");
+            scan.nextLine();
+            return;
+        }
 
         System.out.print("\033[H\033[2J");
         System.out.println("\n=============================================");
@@ -85,73 +134,118 @@ public class CustomerMenu {
         
         System.out.print("Enter Vehicle Type  : ");
         String type = scan.nextLine().trim();
-        
+        if (type.isEmpty()) {
+        	System.out.println("\n[Canceled] Proceeding to Main Menu..."); return;
+        }
+        	
         System.out.print("Enter Brand & Model : ");
         String brandModel = scan.nextLine().trim();
+        if (brandModel.isEmpty()) {
+        	System.out.println("\n[Canceled] Proceeding to Main Menu..."); return;
+        }
         
         System.out.print("Enter Daily Rate    : ");
-        double rate = scan.nextDouble();
-        scan.nextLine(); // Clear scanner buffer
+        String rateInput = scan.nextLine().trim();
+        if (rateInput.isEmpty()) {
+        	System.out.println("\n[Canceled] Proceeding to Main Menu..."); return;
+        }
+        
+        
+        double rate;
+        try {
+            rate = Double.parseDouble(rateInput);
+        } catch (NumberFormatException e) {
+            System.out.println("\n[Error] Invalid rate format.");
+            System.out.println("Press ENTER to continue...");
+            scan.nextLine();
+            return;
+        }
 
         VehicleRepository vehicleRepo = new VehicleRepository(db.getConnection());
         Vehicle new_vehicle = new Vehicle(currentUser.getUserId(), type, brandModel, rate);
 
         try {
             vehicleRepo.insert(new_vehicle);
-        }
-        catch (SQLException e){
+            System.out.println("\n[Success] Vehicle successfully listed!");
+        } catch (SQLException e) {
+            System.out.println("\n[Error] Database operation failed.");
             e.printStackTrace();
-            return;
-        }
-        finally {
+        } finally {
+            System.out.println("\nPress ENTER to continue.");
             scan.nextLine();
         }
     }
 
     public void returnRent() {
 
-        VehicleRepository vehicleRepo = new VehicleRepository(db.getConnection());
-        BookingRepository bookingRepo = new BookingRepository(db.getConnection());
-
-        try {
+    	try {
             System.out.print("\033[H\033[2J");
             System.out.println("\n=============================================");
             System.out.println(  "             YOUR ACTIVE RENTALS             ");
             System.out.println(  "=============================================");
 
+            VehicleRepository vehicleRepo = new VehicleRepository(db.getConnection());
+            BookingRepository bookingRepo = new BookingRepository(db.getConnection());
+
             List<Booking> bookings = bookingRepo.findAllRentsOfUser(currentUser.getUserId());
-            for (int i = 0; i < bookings.size(); i++) {
-                Booking curr = bookings.get(i);
-                System.out.printf("%d -- %S -- Php %.2f\n", curr.getBookingId(), curr.getVehicleModel(), curr.getTotalFee());
+            
+            for (Booking curr : bookings) {
+                System.out.printf("%d -- %s -- Php %.2f\n", 
+                    curr.getBookingId(), curr.getVehicleModel(), curr.getTotalFee());
             }
 
             if (bookings.isEmpty()) {
-                System.out.println("You have no active approved rentals to return.");
+                System.out.println("You have no active rentals to return.");
                 System.out.println("\nPress ENTER to return...");
                 scan.nextLine();
                 return;
             }
 
             System.out.println("---------------------------------------------");
-            System.out.print("Enter the Booking ID of the vehicle you want to return: ");
-            int bookingId = scan.nextInt();
-            scan.nextLine(); // Clear scanner buffer
+            System.out.print("Enter Booking ID to return: ");
+            String idInput = scan.nextLine().trim();
+            
+            if (idInput.isEmpty()) {
+                System.out.println("\n[Canceled] Proceeding to Main Menu...");
+                return;
+            }
 
-            Optional<Booking> newBooking = bookingRepo.findById(bookingId);
-            Booking booking = new Booking();
-            if (newBooking.isPresent()) booking = newBooking.get();
-
-            Optional<Vehicle> newVehicle = vehicleRepo.findById(booking.getVehicleId());
-            Vehicle vehicle = new Vehicle();
-            if (newVehicle.isPresent()) vehicle = newVehicle.get();
-
+            int bookingId;
+            try {
+                bookingId = Integer.parseInt(idInput);
+            } catch (NumberFormatException e) {
+                System.out.println("\n[Error] Invalid ID format. \nPress ENTER to continue.");
+                scan.nextLine();
+                return;
+            }
+            
+            // Safe DB unwarapping 
+            Optional<Booking> targetBooking = bookingRepo.findById(bookingId);
+            if (targetBooking.isEmpty()) {
+                System.out.println("\n[Error] Booking not found. Press ENTER to continue.");
+                scan.nextLine();
+                return;
+            }
+            Booking booking = targetBooking.get();
+            
+            Optional<Vehicle> targetVehicle = vehicleRepo.findById(booking.getVehicleId());
+            if (targetVehicle.isEmpty()) {
+                System.out.println("\n[Error] Vehicle not found in database.");
+                scan.nextLine();
+                return;
+            }
+            Vehicle vehicle = targetVehicle.get();
+            
+            // Process Return
             booking.setStatus("Paid");
             bookingRepo.update(booking);
+            
             vehicle.setIsAvailable(true);
             vehicleRepo.update(vehicle);
 
-            System.out.println("\n[Success] Vehicle returned successfully! Waiting for data synchronization.");
-            System.out.println("Press ENTER to continue...");
+            System.out.println("\n[Success] Vehicle returned successfully! "
+            		+ "\nWaiting for data synchronization.");
+            System.out.println("\nPress ENTER to continue.");
             scan.nextLine();
 
         } catch (SQLException e) {
@@ -172,41 +266,50 @@ public class CustomerMenu {
 
             VehicleRepository repo = new VehicleRepository(db.getConnection());
             List<Vehicle> vehicles = repo.findAllAvailableOfOwner(currentUser.getUserId());
+            
             for (int i = 0; i < vehicles.size(); i++) {
                 Vehicle curr = vehicles.get(i);
                 String isAvailable = curr.isAvailable() ? "Available" : "Rented";
-                System.out.printf("%d -- %S -- %S -- %S\n", curr.getVehicleId(), curr.getVehicleType(), curr.getBrandModel(), isAvailable);
+                System.out.printf("%d -- %s -- %s -- %s\n", curr.getVehicleId(), curr.getVehicleType(), curr.getBrandModel(), isAvailable);
             }
 
             if (vehicles.isEmpty()) {
                 System.out.println("You do not have any registered vehicles listed.");
-                System.out.println("\nPress ENTER to return...");
+                System.out.println("\nPress ENTER to return.");
                 scan.nextLine();
                 return;
             }
 
             System.out.println("---------------------------------------------");
-            System.out.print("Enter the Vehicle ID to unlist/delete: ");
-            int vehicleId = scan.nextInt();
-            scan.nextLine(); // Clear scanner buffer
+            System.out.print("Enter Vehicle ID to unlist/delete: ");
+            String idInput = scan.nextLine().trim();
+            if (idInput.isEmpty()) return;
 
+            int vehicleId;
             try {
-                int a = repo.delete(currentUser.getUserId(), vehicleId);
-                if (a == 0) throw new SQLException();
-            }
-            catch (SQLException e) {
-                System.out.println("SQL ERROR: Deleting vehicle failed\nPress ENTER to continue...");
+                vehicleId = Integer.parseInt(idInput);
+            } catch (NumberFormatException e) {
+                System.out.println("\n[Error] Invalid ID format.\nPress ENTER to continue.");
                 scan.nextLine();
                 return;
             }
-
-            System.out.println("\n[Success] Your vehicle has been removed from the renting pool.");
-            System.out.println("Press ENTER to continue...");
+            
+            int rowsDeleted = repo.delete(currentUser.getUserId(), vehicleId);
+            if (rowsDeleted == 0) {
+                System.out.println("\n[Error] Failed to delete. "
+                		+ "\nEither incorrect Vehicle ID or you do not own it.");
+                
+            } else {
+                System.out.println("\n[Success] Your vehicle has been removed from the renting pool.");
+            }
+            
+            System.out.println("Press ENTER to continue.");
             scan.nextLine();
 
         } catch (SQLException e) {
             System.out.println("\n[Error] Database operation failed during unlisting.");
             e.printStackTrace();
+            System.out.println("Press ENTER to continue.");
             scan.nextLine();
         }
     }
