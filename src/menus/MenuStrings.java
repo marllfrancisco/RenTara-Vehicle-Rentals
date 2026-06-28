@@ -17,6 +17,7 @@ public class MenuStrings {
             ---------------------------------------------
               1. Log in
               2. Register
+              3. Logout
             ---------------------------------------------
             Entry:\s""";
 
@@ -28,7 +29,7 @@ public class MenuStrings {
               1. Approve KYC
               2. View All Users
               3. View Revenue Report
-              4. Exit
+              4. Logout
             ---------------------------------------------
             Entry:\s""";
 
