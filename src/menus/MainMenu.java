@@ -78,7 +78,7 @@ public class MainMenu {
                     menu.unlistVehicle();
                     break;
                 case "5":   
-                    scan.close();
+                	System.out.println("\nLogged out.");
                     return;
                 default:
                     break;

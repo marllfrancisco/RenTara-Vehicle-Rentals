@@ -17,7 +17,7 @@ public class MenuStrings {
             ---------------------------------------------
               1. Log in
               2. Register
-              3. Logout
+              3. Exit
             ---------------------------------------------
             Entry:\s""";
 
@@ -42,7 +42,7 @@ public class MenuStrings {
               2. List my Vehicle for Rent
               3. Return a Rented Vehicle
               4. Unlist my Vehicle for Rent
-              5. Exit
+              5. Logout
             ---------------------------------------------
             Entry:\s""";
 }
