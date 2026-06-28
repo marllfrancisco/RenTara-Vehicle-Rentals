@@ -21,16 +21,30 @@ public class Main {
         Database db = new Database("RenTara.db");
         Login login = new Login(db);
         MainMenu main_menu = new MainMenu(db);
-        User user = new User();
 
-        // Get user object using Login
-        Optional<User> result = login.start();
+        // MAINEST Loop
+        while (true) {
+            // Start login/register
+            Optional<User> result = login.start();
+            
+            if (result.isEmpty()) { 
+                System.out.println("System Exiting.");
+                break; 
+            }
+            
+            // Logged-in user
+            User user = result.get();
 
-        if (result.isPresent()) { user = result.get(); }
-        else return;
-
-        if (user.isAdmin()) { main_menu.admin_start(); }
-        else { main_menu.customer_start(user); } 
+            // route to correct menu
+            if (user.isAdmin()) { 
+                main_menu.admin_start(); 
+            } else { 
+                main_menu.customer_start(user); 
+            } 
+            
+            // the code drops down here, when logged out EITHER admin or cust
+            // loop restarts, then to login.start() again
+        }
 
         System.out.print("\033[H\033[2J");
     }
