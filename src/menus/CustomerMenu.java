@@ -314,4 +314,78 @@ public class CustomerMenu {
         }
     }
 
+    public void editVehicle() {
+        try {
+            System.out.print("\033[H\033[2J");
+            System.out.println("\n=============================================");
+            System.out.println("              YOUR LISTED VEHICLES           ");
+            System.out.println("=============================================");
+
+            VehicleRepository vehicleRepo = new VehicleRepository(db.getConnection());
+            List<Vehicle> vehicles = vehicleRepo.findAllAvailableOfOwner(currentUser.getUserId());
+
+            for (int i = 0; i < vehicles.size(); i++) {
+                Vehicle curr = vehicles.get(i);
+                System.out.printf("%d -- %s -- %s -- %.2f\n", curr.getVehicleId(), curr.getVehicleType(), curr.getBrandModel(), curr.getDailyRate());
+            }
+
+            if (vehicles.isEmpty()) {
+                System.out.println("You do not have any registered vehicles listed.");
+                System.out.println("\nPress ENTER to return.");
+                scan.nextLine();
+                return;
+            }
+
+            System.out.println("---------------------------------------------");
+            System.out.print("Enter Vehicle ID to edit: ");
+            String idInput = scan.nextLine().trim();
+            if (idInput.isEmpty()) return;
+
+            int vehicleId;
+            try {
+                vehicleId = Integer.parseInt(idInput);
+            } catch (NumberFormatException e) {
+                System.out.println("\n[Error] Invalid ID format.\nPress ENTER to continue.");
+                scan.nextLine();
+                return;
+            }
+
+            // Vehicle ID confirmation, checks vehicle id, owner id, and availability
+            Optional<Vehicle> result = vehicleRepo.getVehicleOfOwner(vehicleId, currentUser.getUserId());
+            Vehicle vehicle = new Vehicle();
+            if (result.isPresent()) vehicle = result.get();
+            else {
+                System.out.println("No selected vehicle ID, returning to menu");
+                System.out.println("Press ENTER to continue.");
+                scan.nextLine();
+                return;
+            }
+
+            // Gets new info via scanner
+            System.out.print("Enter new brand model:");
+            String brand_model = scan.nextLine();
+            System.out.print("Enter new daily rate :");
+            Double daily_rate = scan.nextDouble();
+            scan.nextLine();
+
+            // Update non-empty fields
+            if (!brand_model.isBlank()) vehicle.setBrandModel(brand_model);
+            if (daily_rate > 0) vehicle.setDailyRate(daily_rate);
+
+            // Finalize update via repository
+            vehicleRepo.update(vehicle);
+
+            System.out.println("Vehicle successfully updated!");
+            System.out.println("Press ENTER to continue.");
+            scan.nextLine();
+
+        } catch (SQLException e) {
+            System.out.println("\n[Error] Databse operation failed");
+            e.printStackTrace();
+            System.out.println("Press ENTER to continue.");
+            scan.nextLine();
+        }
+
+    }
+
 }

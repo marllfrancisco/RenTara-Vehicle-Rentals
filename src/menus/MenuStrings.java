@@ -42,7 +42,8 @@ public class MenuStrings {
               2. List my Vehicle for Rent
               3. Return a Rented Vehicle
               4. Unlist my Vehicle for Rent
-              5. Logout
+              5. Edit my Vehicle
+              6. Logout
             ---------------------------------------------
             Entry:\s""";
 }

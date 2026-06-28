@@ -3,6 +3,7 @@ package models;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.function.Function;
 
 public class VehicleRepository extends BaseRepository<Vehicle, Integer> {
@@ -109,5 +110,17 @@ public class VehicleRepository extends BaseRepository<Vehicle, Integer> {
         }
     }
 
-    
+    public Optional<Vehicle> getVehicleOfOwner(Integer vehicleId, Integer ownerId) throws SQLException {
+        String sql = "SELECT * FROM vehicles WHERE vehicle_id = ? AND owner_id = ? AND is_available = 1";
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, vehicleId);
+            ps.setInt(2, ownerId);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return Optional.of(getMapper().apply(rs));
+                }
+            }
+        }
+        return Optional.empty();
+    }
 }
