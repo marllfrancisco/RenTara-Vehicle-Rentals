@@ -128,7 +128,7 @@ public class CustomerMenu {
 
         System.out.print("\033[H\033[2J");
         System.out.println("\n=============================================");
-        System.out.println(  "            LIST YOUR VEHICLE                ");
+        System.out.println(  "              LIST YOUR VEHICLE                ");
         System.out.println(  "=============================================");
         
         System.out.print("Enter Vehicle Type  : ");
@@ -225,6 +225,15 @@ public class CustomerMenu {
                 return;
             }
             Booking booking = targetBooking.get();
+            
+            // Match user ID and status
+            if (booking.getUserId() != currentUser.getUserId() || !booking.getStatus().equalsIgnoreCase("Pending")) {
+                System.out.println("\n[Error] Invalid Booking ID. "
+                		+ "\nEither you do not rent this or has already been returned.");
+                System.out.println("Press ENTER to continue.");
+                scan.nextLine();
+                return;
+            }
             
             Optional<Vehicle> targetVehicle = vehicleRepo.findById(booking.getVehicleId());
             if (targetVehicle.isEmpty()) {
