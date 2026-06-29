@@ -123,4 +123,19 @@ public class VehicleRepository extends BaseRepository<Vehicle, Integer> {
         }
         return Optional.empty();
     }
+
+    public List<Vehicle> searchForKey(Integer ownerId, String contains) throws SQLException {
+        List<Vehicle> vehicles = new ArrayList<>();
+        String sql = "SELECT * FROM vehicles WHERE vehicle_type LIKE '%' || ? || '%' OR brand_model LIKE '%' || ? || '%'";
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, contains);
+            ps.setString(2, contains);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    vehicles.add(getMapper().apply(rs));
+                }
+            }
+        }
+        return vehicles;
+    }
 }

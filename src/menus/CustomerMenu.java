@@ -386,7 +386,8 @@ public class CustomerMenu {
             try {
                 vehicleId = Integer.parseInt(idInput);
             } catch (NumberFormatException e) {
-            	System.out.println("\n[Invalid] ID format as number only.\nPress ENTER to continue.");                scan.nextLine();
+            	System.out.println("\n[Invalid] ID format as number only.\nPress ENTER to continue.");
+                scan.nextLine();
                 return;
             }
 
@@ -458,6 +459,44 @@ public class CustomerMenu {
             scan.nextLine();
         }
 
+    }
+
+    public void searchVehicle() {
+        try {
+            System.out.print("\033[H\033[2J");
+            System.out.print("Enter search keyword: ");
+            String search_key = scan.nextLine();
+
+            VehicleRepository vehicleRepo = new VehicleRepository(db.getConnection());
+            List<Vehicle> vehicles = vehicleRepo.searchForKey(currentUser.getUserId(), search_key);
+
+            if (vehicles.isEmpty()) {
+                System.out.printf("\nNo vehicles with search key %S found", search_key);
+                System.out.println("Press ENTER to continue.");
+                scan.nextLine();
+                return;
+            }
+
+            System.out.print("\033[H\033[2J");
+            System.out.println("\n==============================================");
+            System.out.println("                FOUND VEHICLES");
+            System.out.println("                Search Results");
+            System.out.println("==============================================");
+
+            for (Vehicle curr : vehicles) {
+                System.out.printf("%d -- %S -- %S -- Php %.2f\n", curr.getVehicleId(), curr.getVehicleType(), 
+                													curr.getBrandModel(), curr.getDailyRate());
+            }           
+
+            System.out.println("\nPress ENTER to continue.");
+            scan.nextLine();
+        }
+        catch (SQLException e) {
+            System.out.println("\n[Error] Databse operation failed");
+            e.printStackTrace();
+            System.out.println("Press ENTER to continue.");
+            scan.nextLine();  
+        }
     }
 
 }
