@@ -131,8 +131,10 @@ public class AdminMenu {
         BookingRepository repo = new BookingRepository(db.getConnection());
         try {
         	System.out.println();
+        	System.out.println("-------------------------------------------");
             repo.printTotal();
             repo.printPending();
+            System.out.println("-------------------------------------------");
             repo.print();
         }
         catch (SQLException e) {

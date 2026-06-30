@@ -473,7 +473,7 @@ public class CustomerMenu {
 
             if (vehicles.isEmpty()) {
                 System.out.printf("\nNo vehicles with search key %S found", search_key);
-                System.out.println("Press ENTER to continue.");
+                System.out.println("\nPress ENTER to continue.");
                 scan.nextLine();
                 return;
             }

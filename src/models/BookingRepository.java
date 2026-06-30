@@ -186,7 +186,7 @@ public class BookingRepository extends BaseRepository<Booking, Integer> {
         
         System.out.println("MOST RENTED VEHICLES");
         System.out.println("=".repeat(80));
-        System.out.printf("%-15s %-12s %10s %10s %5s %15s%n",
+        System.out.printf("%-12s %-15s %10s %10s %5s %15s%n",
             "Type", "Model", "Per Day", "Rentals", "Days", "Total Earned");
         System.out.println("=".repeat(80));
         
@@ -194,7 +194,7 @@ public class BookingRepository extends BaseRepository<Booking, Integer> {
             System.out.println("No data available");
         } else {
         for (Map<String, Object> row : data) {
-                System.out.printf("%-15s %-12s %10.2f %10d %5d %15.2f%n",
+                System.out.printf("%-12s %-15s %10.2f %10d %5d %15.2f%n",
                     row.get("vehicle_type"),
                     row.get("brand_model"),
                     row.get("daily_rate"),
