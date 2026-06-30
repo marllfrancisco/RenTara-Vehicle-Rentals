@@ -101,8 +101,20 @@ public class VehicleRepository extends BaseRepository<Vehicle, Integer> {
         return vehicles;
     }
 
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
     public int delete(Integer ownerId, Integer vehicleId) throws SQLException {
-        String sql = "DELETE FROM vehicles WHERE owner_id = ? AND vehicle_id = ? AND is_available = 1";
+        String sql = "DELETE FROM vehicles WHERE owner_id = ? AND vehicle_id = ? "
+        		+ "AND is_available = 1";
         try (PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setInt(1, ownerId);
             ps.setInt(2, vehicleId);
@@ -110,6 +122,23 @@ public class VehicleRepository extends BaseRepository<Vehicle, Integer> {
         }
     }
 
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
     public Optional<Vehicle> getVehicleOfOwner(Integer vehicleId, Integer ownerId) throws SQLException {
         String sql = "SELECT * FROM vehicles WHERE vehicle_id = ? AND owner_id = ? AND is_available = 1";
         try (PreparedStatement ps = conn.prepareStatement(sql)) {
