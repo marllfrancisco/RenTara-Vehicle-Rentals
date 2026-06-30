@@ -213,7 +213,8 @@ public class CustomerMenu {
             try {
                 bookingId = Integer.parseInt(idInput);
             } catch (NumberFormatException e) {
-            	System.out.println("\n[Invalid] ID format as number only.\nPress ENTER to continue.");                scan.nextLine();
+            	System.out.println("\n[Invalid] ID format as number only.\nPress ENTER to continue.");                
+            	scan.nextLine();
                 return;
             }
             
@@ -229,7 +230,7 @@ public class CustomerMenu {
             // Match user ID and status
             if (booking.getUserId() != currentUser.getUserId() || !booking.getStatus().equalsIgnoreCase("Pending")) {
                 System.out.println("\n[Error] Invalid Booking ID. "
-                		+ "\nEither you do not rent this or has already been returned.");
+                		+ "\nYou have no active rent with this ID.");
                 System.out.println("Press ENTER to continue.");
                 scan.nextLine();
                 return;
@@ -325,7 +326,7 @@ public class CustomerMenu {
                 }
             }
 
-            // 2. Only execute deletion if the user confirmed
+            // MAIN DELETION PROCESS HERE
             if (proceed) {
                 int rowsDeleted = repo.delete(currentUser.getUserId(), vehicleId);
                 
